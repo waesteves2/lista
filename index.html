@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="https://cdn-icons-png.flaticon.com/512/123/123445.png" type="image/x-icon">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+    <title>ListaFácil App</title>
+    <style>
+        /* CSS Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            height: 100%;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        header {
+            background: #333;
+            color: #fff;
+            padding: 10px 0;
+            text-align: center;
+        }
+
+        .total {
+            font-size: 1.5em;
+            margin-top: 10px;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-around;
+            background: #444;
+            padding: 10px 0;
+        }
+
+        .tablink {
+            background-color: #444;
+            color: white;
+            border: none;
+            padding: 14px 16px;
+            cursor: pointer;
+            flex-grow: 1;
+            text-align: center;
+        }
+
+        .tablink:hover {
+            background-color: #555;
+        }
+
+        .tabcontent {
+            display: none;
+            padding: 20px;
+            border-top: 1px solid #ccc;
+            background: #fff;
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        form input {
+            padding: 10px;
+            font-size: 1em;
+            width: 100%;
+        }
+
+        form button {
+            padding: 10px;
+            background: #333;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        form button:hover {
+            background: #555;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            background: #f4f4f4;
+            margin: 5px 0;
+            padding: 10px;
+            border: 1px solid #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        li input[type="number"] {
+            margin-left: 10px;
+            padding: 5px;
+            width: 80px;
+        }
+
+        li button {
+            margin-left: 10px;
+            padding: 5px 10px;
+        }
+
+        .close-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+
+        .close-btn:hover {
+            background: #c0392b;
+        }
+
+        @media (max-width: 600px) {
+            .tablink {
+                padding: 10px 12px;
+            }
+
+            form input,
+            form button {
+                font-size: 0.9em;
+            }
+
+            li {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            li input[type="number"],
+            li button {
+                margin-left: 0;
+                margin-top: 5px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <header>
+                <h1>ListaFácil App <i class="fas fa-shopping-cart"></i></h1>
+                <div class="total">
+                    Total: R$ <span id="total-value">0.00</span>
+                </div>
+            </header>
+
+        </header>
+        <nav>
+            <button class="tablink" onclick="openTab(event, 'Alimentos')">Alimentos</button>
+            <button class="tablink" onclick="openTab(event, 'Higiene')">Higiene</button>
+            <button class="tablink" onclick="openTab(event, 'Limpeza')">Limpeza</button>
+        </nav>
+        <div id="Alimentos" class="tabcontent">
+            <h2><i class="fas fa-utensils"></i> Alimentos</h2>
+            <form onsubmit="addItem(event, 'Alimentos')">
+                <input type="text" id="alimentos-name" placeholder="Nome do item" required>
+                <input type="number" id="alimentos-quantity" placeholder="Quantidade" required>
+                <button type="submit"> <i class="fas fa-plus"></i> Adicionar</button>
+            </form>
+            <ul id="alimentos-list"></ul>
+        </div>
+        <div id="Higiene" class="tabcontent">
+            <h2><i class="fas fa-shower"></i> Higiene</h2>
+            <form onsubmit="addItem(event, 'Higiene')">
+                <input type="text" id="higiene-name" placeholder="Nome do item" required>
+                <input type="number" id="higiene-quantity" placeholder="Quantidade" required>
+                <button type="submit"> <i class="fas fa-plus"></i> Adicionar</button>
+            </form>
+            <ul id="higiene-list"></ul>
+        </div>
+        <div id="Limpeza" class="tabcontent">
+            <h2><i class="fas fa-broom"></i> Limpeza</h2>
+            <form onsubmit="addItem(event, 'Limpeza')">
+                <input type="text" id="limpeza-name" placeholder="Nome do item" required>
+                <input type="number" id="limpeza-quantity" placeholder="Quantidade" required>
+                <button type="submit"><i class="fas fa-plus"></i> Adicionar</button>
+            </form>
+            <ul id="limpeza-list"></ul>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelector('.tablink').click();
+            loadItems('Alimentos');
+            loadItems('Higiene');
+            loadItems('Limpeza');
+        });
+
+        function openTab(evt, tabName) {
+            const tabcontent = document.getElementsByClassName("tabcontent");
+            for (let i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+            }
+            const tablinks = document.getElementsByClassName("tablink");
+            for (let i = 0; i < tablinks.length; i++) {
+                tablinks[i].style.backgroundColor = "";
+            }
+            document.getElementById(tabName).style.display = "block";
+            evt.currentTarget.style.backgroundColor = '#555';
+        }
+
+        function addItem(event, category) {
+            event.preventDefault();
+
+            const itemName = document.getElementById(`${category.toLowerCase()}-name`).value;
+            const itemQuantity = parseFloat(document.getElementById(`${category.toLowerCase()}-quantity`).value);
+
+            const itemList = document.getElementById(`${category.toLowerCase()}-list`);
+            const listItem = document.createElement('li');
+            listItem.innerHTML = `${itemName} - Quantidade: ${itemQuantity} <input type="number" placeholder="Preço" step="0.01"> <button onclick="addPrice(event, '${category}')">Adicionar Preço</button> <button class="close-btn" onclick="deleteItem(event, '${category}')">X</button>`;
+            itemList.appendChild(listItem);
+
+            // Save to Local Storage
+            saveItem(category, itemName, itemQuantity);
+
+            // Clear inputs
+            document.getElementById(`${category.toLowerCase()}-name`).value = '';
+            document.getElementById(`${category.toLowerCase()}-quantity`).value = '';
+        }
+
+        function addPrice(event, category) {
+            const listItem = event.target.parentElement;
+            const priceInput = listItem.querySelector('input[type="number"]');
+            const price = parseFloat(priceInput.value);
+            if (isNaN(price) || price <= 0) {
+                alert("Por favor, insira um preço válido.");
+                return;
+            }
+
+            const text = listItem.childNodes[0].textContent;
+            const quantityMatch = text.match(/Quantidade: (\d+)/);
+            const quantity = quantityMatch ? parseFloat(quantityMatch[1]) : 0;
+            const itemTotal = quantity * price;
+
+            listItem.innerHTML = `${text} - Preço: R$ ${price.toFixed(2)}, Total: R$ ${itemTotal.toFixed(2)} <button class="close-btn" onclick="deleteItem(event, '${category}')">X</button>`;
+            updateTotal(itemTotal);
+        }
+
+        function updateTotal(amount) {
+            const totalValue = document.getElementById('total-value');
+            const currentTotal = parseFloat(totalValue.textContent);
+            const newTotal = currentTotal + amount;
+            totalValue.textContent = newTotal.toFixed(2);
+        }
+
+        function saveItem(category, name, quantity) {
+            const items = JSON.parse(localStorage.getItem(category)) || [];
+            items.push({ name, quantity });
+            localStorage.setItem(category, JSON.stringify(items));
+        }
+
+        function loadItems(category) {
+            const items = JSON.parse(localStorage.getItem(category)) || [];
+            items.forEach(item => {
+                const itemList = document.getElementById(`${category.toLowerCase()}-list`);
+                const listItem = document.createElement('li');
+                listItem.innerHTML = `${item.name} - Quantidade: ${item.quantity} <input type="number" placeholder="Preço" step="0.01"> <button onclick="addPrice(event, '${category}')">Adicionar Preço</button> <button class="close-btn" onclick="deleteItem(event, '${category}')">X</button>`;
+                itemList.appendChild(listItem);
+            });
+        }
+
+        function deleteItem(event, category) {
+            const listItem = event.target.parentElement;
+            const itemText = listItem.childNodes[0].textContent;
+            const itemNameMatch = itemText.match(/^(.*) - Quantidade:/);
+            const itemName = itemNameMatch ? itemNameMatch[1] : '';
+
+            // Remove from Local Storage
+            let items = JSON.parse(localStorage.getItem(category)) || [];
+            items = items.filter(item => item.name !== itemName);
+            localStorage.setItem(category, JSON.stringify(items));
+
+            // Remove from DOM
+            listItem.remove();
+        }
+
+
+    </script>
+</body>
+
+</html>
